@@ -7,39 +7,43 @@ pipeline {
     }
 
     environment {
-        APP_NAME = "user-service"
         JAR_NAME = "user-service-0.0.1-SNAPSHOT.jar"
         APP_PORT = "8080"
     }
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/kajalkar310/JenkinProject.git'
-            }
-        }
+        //  REMOVE Checkout stage (already done automatically)
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                bat 'mvn clean package'
             }
         }
 
-    
+        stage('Stop Old Application') {
+            steps {
+                bat '''
+                for /f "tokens=5" %%a in ('netstat -aon ^| findstr :%APP_PORT%') do taskkill /PID %%a /F
+                '''
+            }
+        }
+
         stage('Deploy Application') {
             steps {
-                echo 'Build successful'
+                bat '''
+                start "" java -jar target\\%JAR_NAME%
+                '''
             }
         }
     }
 
     post {
         success {
-            echo ' Application deployed successfully without Docker'
+            echo 'Application deployed successfully'
         }
         failure {
-            echo ' Deployment failed'
+            echo 'Deployment failed'
         }
     }
 }
