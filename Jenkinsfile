@@ -16,7 +16,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/user-service.git'
+                git branch: 'main', url: 'https://github.com/kajalkar310/JenkinProject.git'
             }
         }
 
@@ -26,24 +26,10 @@ pipeline {
             }
         }
 
-        stage('Stop Old Application') {
-            steps {
-                script {
-                    sh '''
-                    PID=$(lsof -t -i:$APP_PORT || true)
-                    if [ ! -z "$PID" ]; then
-                      kill -9 $PID
-                    fi
-                    '''
-                }
-            }
-        }
-
+    
         stage('Deploy Application') {
             steps {
-                sh '''
-                nohup java -jar target/$JAR_NAME > app.log 2>&1 &
-                '''
+                echo 'Build successful'
             }
         }
     }
