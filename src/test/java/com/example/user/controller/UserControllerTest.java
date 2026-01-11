@@ -2,6 +2,7 @@ package com.example.user.controller;
 
 import com.example.user.entity.User;
 import com.example.user.repository.UserRepository;
+import com.example.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserRepository repository;
+    private UserService userService;
 
 
     @Test
@@ -36,7 +37,7 @@ class UserControllerTest {
                 new User (1L, "John Doe", "john@gmail.com"),
                 new User(2L, "Jane Smith", "john@gmail.com")
         );
-        when(repository.findAll()).thenReturn(users);
+        when(userService.getAllUsers()).thenReturn(users);
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(users.size()));
@@ -47,7 +48,7 @@ class UserControllerTest {
 
     @Test
     void getAllUsers_whenNoUsers_thenReturnEmptyList() throws Exception {
-        when(repository.findAll()).thenReturn(Collections.emptyList());
+        when(userService.getAllUsers()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
