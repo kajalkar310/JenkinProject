@@ -21,6 +21,26 @@ pipeline {
             }
         }
 
+         stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('sonar-9001') {
+                            bat '''
+                            mvn sonar:sonar ^
+                              -Dsonar.projectKey=user-service ^
+                              -Dsonar.projectName=user-service
+                            '''
+                        }
+                    }
+                }
+
+         stage('Quality Gate') {
+                    steps {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
+
         stage('Stop Old Application') {
             steps {
                 bat '''
