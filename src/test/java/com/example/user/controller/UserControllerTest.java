@@ -1,16 +1,12 @@
 package com.example.user.controller;
 
-import com.example.user.component.JwtFilter;
-import com.example.user.component.JwtUtil;
 import com.example.user.entity.User;
 import com.example.user.response.Status;
 import com.example.user.response.UserResponse;
-import com.example.user.service.CustomUserDetailsService;
 import com.example.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -24,7 +20,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
     @Autowired
@@ -35,15 +30,6 @@ class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockBean
-    private JwtFilter jwtFilter;
-
-    @MockBean
-    private JwtUtil jwtUtil;
-
-    @MockBean
-    private CustomUserDetailsService customUserDetailsService;
 
     // ---------- GET ALL USERS ----------
 
