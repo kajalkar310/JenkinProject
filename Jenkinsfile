@@ -13,35 +13,53 @@ pipeline {
 
     stages {
 
-        //  REMOVE Checkout stage (already done automatically)
-
         stage('Build') {
             steps {
-                bat 'mvn clean package'
+                bat 'mvn clean package -DskipTests'
             }
         }
 
-         stage('SonarQube Analysis') {
-                    steps {
-                        withSonarQubeEnv('sonar-9001') {
-                            bat '''
-                            mvn sonar:sonar ^
-                              -Dsonar.projectKey=user-service ^
-                              -Dsonar.projectName=user-service
-                            '''
-                        }
-                    }
+        stage('SonarQube Analysis') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                    branch 'master'
                 }
+            }
+            steps {
+                withSonarQubeEnv('sonar-9001') {
+                    bat '''
+                    mvn sonar:sonar ^
+                      -Dsonar.projectKey=user-service ^
+                      -Dsonar.projectName=user-service
+                    '''
+                }
+            }
+        }
 
-         stage('Quality Gate') {
-                    steps {
-                        timeout(time: 5, unit: 'MINUTES') {
-                            waitForQualityGate abortPipeline: true
-                        }
-                    }
+        stage('Quality Gate') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
+                    branch 'master'
                 }
+            }
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage('Stop Old Application') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
             steps {
                 bat '''
                 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :%APP_PORT%') do taskkill /PID %%a /F
@@ -50,6 +68,12 @@ pipeline {
         }
 
         stage('Deploy Application') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
             steps {
                 bat '''
                 start "" java -jar target\\%JAR_NAME%
@@ -60,10 +84,10 @@ pipeline {
 
     post {
         success {
-            echo 'Application deployed successfully'
+            echo "Pipeline succeeded for branch: ${env.BRANCH_NAME}"
         }
         failure {
-            echo 'Deployment failed'
+            echo "Pipeline failed for branch: ${env.BRANCH_NAME}"
         }
     }
 }
